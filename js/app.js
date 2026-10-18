@@ -5,7 +5,7 @@
   const RESEARCH_MS = 10 * 60 * 1000;
   const SPEAK_MS = 60 * 1000;
   const MIN_RESEARCH_MS = 60 * 1000;
-  const VIEWS = ['home', 'research', 'speak', 'eval', 'history'];
+  const VIEWS = ['home', 'research', 'speak', 'eval', 'history', 'story'];
   const RATINGS = [
     { key: 'confidence', label: 'Tingkat Kepercayaan Diri' },
     { key: 'clarity', label: 'Penjelasan jelas kaga?' },
@@ -37,6 +37,13 @@ function toggleTheme() {
   applyTheme(t);
   try { localStorage.setItem(THEME_KEY, t); } catch (e) { /* abaikan */ }
 }
+
+  /* ---------- Menu garis tiga ---------- */
+  function setMenu(open) {
+    $('menu-list').classList.toggle('hidden', !open);
+    $('btn-menu').setAttribute('aria-expanded', String(open));
+    $('btn-menu').setAttribute('aria-label', open ? 'Tutup menu' : 'Buka menu');
+  }
 
   /* ---------- Util ---------- */
   function el(tag, cls, text) {
@@ -143,8 +150,13 @@ function warnCountdown(key, left, state) {
   function show(name) {
     current = name;
     VIEWS.forEach(v => $('view-' + v).classList.toggle('hidden', v !== name));
-    $('nav-home').classList.toggle('active', name !== 'history');
+    $('nav-home').classList.toggle('active', name === 'home');
+    $('nav-practice').classList.toggle('active', name === 'research' || name === 'speak' || name === 'eval');
     $('nav-history').classList.toggle('active', name === 'history');
+    $('nav-story').classList.toggle('active', name === 'story');
+    if (typeof StoryBuilder !== 'undefined') {
+      if (name === 'story') StoryBuilder.enter(); else StoryBuilder.leave();
+    }
     window.scrollTo(0, 0);
     if (name === 'home') renderHome();
     if (name === 'history') renderHistory();
@@ -156,6 +168,9 @@ function warnCountdown(key, left, state) {
     session = null;
   }
   function go(name) {
+        if (current === 'story' && name !== 'story' && typeof StoryBuilder !== 'undefined' && StoryBuilder.isBusy()) {
+      if (!confirm('Latihan Story Builder sedang berjalan atau hasilnya belum disimpan. Keluar sekarang?')) return;
+    }
     const inSession = session && (current === 'research' || current === 'speak' || current === 'eval');
     if (inSession && name !== current) {
       if (!confirm('Sesi latihan akan dihentikan dan evaluasi belum tersimpan. Keluar sekarang?')) return;
@@ -211,6 +226,14 @@ function spinWord() {
   }, reduce ? 50 : 2900);
 }
   function startPractice() {
+      function goPractice() { // dari menu: buka halaman latihan (kata acak + riset)
+    if (current === 'story' && typeof StoryBuilder !== 'undefined' && StoryBuilder.isBusy()) {
+      if (!confirm('Latihan Story Builder sedang berjalan atau hasilnya belum disimpan. Keluar sekarang?')) return;
+    }
+    const inSession = session && (current === 'research' || current === 'speak' || current === 'eval');
+    if (inSession && !confirm('Latihan yang sedang berjalan akan dihentikan dan diganti latihan baru. Lanjutkan?')) return;
+    startPractice();
+  }
     endSession();
     clearTimeout(spinHandle);
     const w = Words.next();
@@ -342,13 +365,32 @@ function onReadyClick() {
   }
 
   /* ---------- Event ---------- */
+    function goPractice() { // dari menu: buka halaman latihan (kata acak + riset)
+    if (current === 'story' && typeof StoryBuilder !== 'undefined' && StoryBuilder.isBusy()) {
+      if (!confirm('Latihan Story Builder sedang berjalan atau hasilnya belum disimpan. Keluar sekarang?')) return;
+    }
+    const inSession = session && (current === 'research' || current === 'speak' || current === 'eval');
+    if (inSession && !confirm('Latihan yang sedang berjalan akan dihentikan dan diganti latihan baru. Lanjutkan?')) return;
+    startPractice();
+  }
   function init() {
     buildRatings();
     initTheme();
     $('btn-theme').addEventListener('click', toggleTheme);
+    $('btn-menu').addEventListener('click', () => setMenu($('menu-list').classList.contains('hidden')));
+    $('menu-list').addEventListener('click', () => setMenu(false));
+    document.addEventListener('click', e => {
+      if (!$('menu-list').contains(e.target) && !$('btn-menu').contains(e.target)) setMenu(false);
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && !$('menu-list').classList.contains('hidden')) { setMenu(false); $('btn-menu').focus(); }
+    });
     $('btn-brand').addEventListener('click', () => go('home'));
     $('nav-home').addEventListener('click', () => go('home'));
     $('nav-history').addEventListener('click', () => go('history'));
+    $('nav-story').addEventListener('click', () => go('story'));
+    $('nav-practice').addEventListener('click', goPractice);
+    $('btn-story').addEventListener('click', () => go('story'));
     $('btn-all-history').addEventListener('click', () => go('history'));
     $('btn-start').addEventListener('click', startPractice);
     $('btn-shuffle').addEventListener('click', shuffleWord);
