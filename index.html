@@ -15,9 +15,18 @@
   <button class="brand" id="btn-brand">BICARA</button>
   <span class="credit">Dibuat oleh Ir. Riohk</span>
   <nav>
-    <button class="link" id="nav-home">Beranda</button>
-    <button class="link" id="nav-history">Riwayat</button>
     <button class="link" id="btn-theme" aria-label="Aktifkan mode gelap">Gelap</button>
+    <div class="menu-wrap">
+      <button type="button" class="menu-toggle" id="btn-menu" aria-label="Buka menu" aria-expanded="false" aria-controls="menu-list">
+        <span class="menu-bar"></span><span class="menu-bar"></span><span class="menu-bar"></span>
+      </button>
+      <div class="menu-list hidden" id="menu-list">
+        <button class="link" id="nav-home">Beranda</button>
+        <button class="link" id="nav-practice">Public Speaking</button>
+        <button class="link" id="nav-story">Story Builder</button>
+        <button class="link" id="nav-history">Riwayat</button>
+      </div>
+    </div>
   </nav>
 </header>
 
@@ -33,7 +42,10 @@
       <p class="eyebrow">Latihan Public Speaking</p>
       <h1>BERANI BICARA</h1>
       <p class="slogan">Belajar ngomong, Biar pas bicara di depan orang kaga malu-maluin.</p>
-      <button class="btn primary big" id="btn-start">Gass Latihan</button>
+    </div>
+    <div class="hero-actions">
+      <button class="btn big" id="btn-start">Public Speaking</button>
+      <button class="btn big" id="btn-story">Story Builder</button>
     </div>
     <div class="grid2">
       <div class="card stat"><span class="muted">Latihan Diselesaikan</span><strong id="stat-count">0</strong></div>
@@ -134,6 +146,50 @@
     </div>
   </section>
 
+  <!-- STORY BUILDER -->
+  <section id="view-story" class="view hidden">
+    <div class="card center">
+      <p class="eyebrow">Story Builder · 90 detik</p>
+      <h2 class="sb-title">Rangkai tiga kata menjadi satu cerita</h2>
+      <ul class="sb-words" id="sb-words" aria-label="Tiga kata untuk ceritamu"></ul>
+      <button type="button" class="btn ghost" id="sb-change">Ganti Kombinasi Kata</button>
+    </div>
+    
+    <div class="card center">
+      <div class="sb-clock" id="sb-clock" role="timer" aria-label="Sisa waktu cerita">01:30</div>
+      <div class="sb-progress"><div class="sb-bar" id="sb-bar"></div></div>
+      <div class="row">
+        <button type="button" class="btn primary" id="sb-start">Mulai</button>
+        <button type="button" class="btn" id="sb-pause">Jeda</button>
+        <button type="button" class="btn ghost" id="sb-reset">Reset</button>
+      </div>
+      <p class="sb-status small" id="sb-status" role="status" aria-live="polite"></p>
+    </div>
+    <div class="card">
+      <h3>Petunjuk</h3>
+      <ol class="sb-steps">
+        <li>Pikirin satu tokoh atau situasi yang bisa hubungin ketiga kata.</li>
+        <li>Susun alur: pembuka, masalah atau kejutan, lalu penutup.</li>
+        <li>Pakai setiap kata minimal satu kali saat berbicara.</li>
+        <li>Cerita boleh nyata atau rekaan, yang penting alurnya jelas.</li>
+      </ol>
+    </div>
+    <form class="card sb-save hidden" id="sb-save" novalidate>
+      <h3>Simpan hasil latihan</h3>
+      <label class="field" for="sb-reflection">Catatan refleksi (opsional)
+        <textarea id="sb-reflection" rows="3" maxlength="500" placeholder="Apa yang sudah baik? Apa yang ingin diperbaiki?"></textarea>
+      </label>
+      <button type="submit" class="btn primary" id="sb-save-btn">Simpan Hasil</button>
+    </form>
+    <div class="card">
+      <div class="card-head">
+        <h3>Riwayat Story Builder</h3>
+        <button type="button" class="btn danger sb-small" id="sb-clear-all">Hapus Semua</button>
+      </div>
+      <div id="sb-history"></div>
+    </div>
+  </section>
+
 </main>
 <div class="corner-credit">Syadd</div>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
@@ -141,6 +197,7 @@
 <script src="js/storage.js"></script>
 <script src="js/words.js"></script>
 <script src="js/timer.js"></script>
+<script src="js/story.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>
